@@ -28,18 +28,18 @@ export async function waitForArticles(
 ): Promise<void> {
     await page.waitForSelector(selector);
 }
+debugger
 
 /**
  * Devuelve el enlace al artículo por índice (0 = primero, 1 = segundo, etc).
  */
-export async function getArticleLink(
+export async function getArticlesLinks(
     page: Page,
-    index: number = 0,
-    selector: string = DEFAULT_ARTICLE_SELECTOR
-): Promise<ElementHandle<Element> | undefined> {
-    await waitForArticles(page, selector); //pongo el waitForArticles aqui para poder acortar las funciones que llama index y que el codigo se lea mejor
+    selector: string = DEFAULT_ARTICLE_SELECTOR,
+): Promise<ElementHandle<Element>[]> {
+    await waitForArticles(page, selector);
     const articles = await page.$$(selector);
-    return articles[index];
+    return articles; // Devuelve siempre un array (vacío si no hay artículos)
 }
 
 /**

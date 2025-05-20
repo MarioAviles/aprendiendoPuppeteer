@@ -6,13 +6,12 @@ import {
   DEFAULT_BODY_SELECTOR,
   DEFAULT_COVER_SELECTOR,
   DEFAULT_TITLE_SELECTOR,
-  openPage,
   waitForArticles,
-  getArticleLink,
+  getArticlesLinks,
   openArticle,
   extractArticleData
 } from './funciones';
-import { goToPage } from './funcionesAuxiliares/go';
+import { goToPage } from './funcionesAuxiliares/goToPage';
 
 
 
@@ -34,14 +33,27 @@ async function main() {
 
     // [X] Ir a la página
 
-const page = goToPage({
-    browser,
-    url: DEFAULT_URL
-});
+    const page = await goToPage({
+        browser,
+        url: DEFAULT_URL
+    });
+
+    if (!page) {
+        console.error('No se pudo abrir la página');
+        await browser.close();
+        return;
+    }
+
     // [ ] Seleccionar los artículos
-
         
+    const articleElement = await getArticlesLinks(page, DEFAULT_ARTICLE_SELECTOR);
 
+    if (!articleElement) {
+        console.error('No se encontró el artículo solicitado');
+        await browser.close();
+        return;
+    }
+    
     // [ ] Extraer información de cada artículo
     //     [ ] Extraer título
     //     [ ] Extraer descripción
@@ -51,33 +63,8 @@ const page = goToPage({
 
 
     // Esperar a que cargue el listado de artículos
-    await waitForArticles(page, DEFAULT_ARTICLE_SELECTOR); //cambiar a get ready
 
     // obtemos todos los articulos
-
-
-    // Obtener el segundo artículo (índice 1)
-    const articleElement = await getArticleLink(page, 4, DEFAULT_ARTICLE_SELECTOR);
-
-    if (!articleElement) {
-        console.error('No se encontró el artículo solicitado');
-        await browser.close();
-        return;
-    }
-
-    // Abrir el artículo
-    await openArticle(page, articleElement);
-
-    // Extraer los datos del artículo
-    const data = await extractArticleData(page, {
-        bodySelector: DEFAULT_BODY_SELECTOR,
-        coverSelector: DEFAULT_COVER_SELECTOR,
-        titleSelector: DEFAULT_TITLE_SELECTOR
-    });
-
-    console.log('Datos del artículo:', data);
-
-    await browser.close();
 }
 
 main();

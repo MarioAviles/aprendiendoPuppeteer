@@ -1,4 +1,4 @@
-import{ Browser, Page, ElementHandle } from 'puppeteer';
+import{ Page, ElementHandle } from 'puppeteer';
 
 // Constantes configurables y reutilizables
 export const DEFAULT_URL = 'https://dev.to/t/programming';
@@ -7,17 +7,6 @@ export const DEFAULT_BODY_SELECTOR = '.crayons-article__body';
 export const DEFAULT_COVER_SELECTOR = 'header.crayons-article__header a.crayons-article__cover img';
 export const DEFAULT_TITLE_SELECTOR = 'h1';
 
-export async function openPage(
-    browser: Browser,
-    url: string = DEFAULT_URL
-) :  Promise<boolean> {
-    const page = await browser.newPage();
-    return page.goto(url, { waitUntil: 'domcontentloaded' }).then(() => {
-        return true;
-    }).catch(() => {
-        return false;
-    });
-}
 
 /**
  * Espera a que cargue el listado de artículos.
@@ -37,6 +26,8 @@ export async function getArticlesLinks(
     page: Page,
     selector: string = DEFAULT_ARTICLE_SELECTOR,
 ): Promise<ElementHandle<Element>[]> {
+        // Sacamos por consola el contenido de la página
+    // console.log(await page.content())
     await waitForArticles(page, selector);
     const articles = await page.$$(selector);
     return articles; // Devuelve siempre un array (vacío si no hay artículos)
@@ -51,6 +42,23 @@ export async function openArticle(
 ): Promise<void> {
     await articleElement.click();
     await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+}
+
+export async function extractArticlesData(
+    page: Page,
+    selector: string = DEFAULT_ARTICLE_SELECTOR
+): Promise<ArticleData[]> {
+    const articles = await getArticlesLinks(page, selector);
+    const articleDataArray: ArticleData[] = [];
+
+    for (const articleElement of articles) {
+        await openArticle(page, articleElement);
+        const articleData = await extractArticleData(page);
+        articleDataArray.push(articleData);
+        await page.goBack();
+    }
+
+    return articleDataArray;
 }
 
 /**

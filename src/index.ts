@@ -15,14 +15,11 @@ import { goToPage } from './funcionesAuxiliares/goToPage';
 
 
 
-async function main() {
-
-    // [X] Implementar navegador
-
+export async function main() {
     const browser = await puppeteer.launch({
         headless: true,
+        slowMo: 100,
         acceptInsecureCerts: true,
-        // ignoreHTTPSErrors: true,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -31,7 +28,7 @@ async function main() {
         ]
     });
 
-    // [X] Ir a la página
+//   [ ] Ir a la página
 
     const page = await goToPage({
         browser,
@@ -44,27 +41,22 @@ async function main() {
         return;
     }
 
-    // [ ] Seleccionar los artículos
-        
-    const articleElement = await getArticlesLinks(page, DEFAULT_ARTICLE_SELECTOR);
+//   [ ] Seleccionar los artículos
 
-    if (!articleElement) {
-        console.error('No se encontró el artículo solicitado');
-        await browser.close();
-        return;
-    }
+    // Si existe, continúa normalmente
+    const articleElements = await getArticlesLinks(page, DEFAULT_ARTICLE_SELECTOR);
+    console.log(`Artículos encontrados: ${articleElements.length}`);
+
+    // for (let i = 0; i < articleElements.length; i++) {
+    //     const el = articleElements[i];
+    //     const titulo = await el.evaluate(a => a.textContent?.trim());
+    //     const href = await el.evaluate(a => (a as HTMLAnchorElement).href);
+    //     console.log(`Artículo ${i + 1}: ${titulo} (${href})`);
+    // }
+
+    // await browser.close();
+
     
-    // [ ] Extraer información de cada artículo
-    //     [ ] Extraer título
-    //     [ ] Extraer descripción
-    //     [ ] Extraer imagen
-    //     [ ] Extraer urs
-
-
-
-    // Esperar a que cargue el listado de artículos
-
-    // obtemos todos los articulos
 }
 
 main();

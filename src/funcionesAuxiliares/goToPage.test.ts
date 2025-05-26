@@ -1,6 +1,6 @@
 import puppeteer, { Browser, Page } from 'puppeteer';
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
-import { goToPage } from './funcionesAuxiliares/goToPage';
+import { goToPage } from './goToPage';
 
 describe('Apertura de página', () => {
     let browser: Browser;

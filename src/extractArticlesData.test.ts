@@ -1,9 +1,8 @@
 import puppeteer, { Browser, Page } from 'puppeteer';
-import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 import { goToPage } from './funcionesAuxiliares/goToPage';
-import { extractArticlesData } from './funciones';
+import { extractArticleData, getArticlesLinks, openArticle, DEFAULT_URL, DEFAULT_ARTICLE_SELECTOR } from './funciones';
 
-describe('extractArticlesData', () => {
+describe('extractArticleData en flujo real con página remota', () => {
     let browser: Browser;
     let page: Page;
 
@@ -17,22 +16,25 @@ describe('extractArticlesData', () => {
                 '--ignore-ssl-errors'
             ]
         });
-        const result = await goToPage({
-            browser,
-            url: 'https://dev.to/t/programming'
-        });
-        if (!result) {
-            throw new Error('No se pudo abrir la página');
-        }
-        page = result;
+        page = await goToPage({ browser, url: DEFAULT_URL }) as Page;
     });
 
     afterAll(async () => {
         await browser.close();
     });
 
-    it('devuelve true si hay información de al menos un artículo', async () => {
-        const articles = await extractArticlesData(page);
-        expect(articles.length > 0).toBe(true);
-    }, 30000); // 30 segundos
+    it('extrae datos reales del primer artículo', async () => {
+        const articles = await getArticlesLinks(page, DEFAULT_ARTICLE_SELECTOR);
+        expect(articles.length).toBeGreaterThan(0);
+
+        await openArticle(page, articles[0]);
+        const datos = await extractArticleData(page);
+
+        expect(datos.titulo).toBeTruthy();
+        expect(datos.introduccion).toBeTruthy();
+        // La portada puede no existir en todos los artículos, así que solo comprobamos que la propiedad existe
+        expect(datos).toHaveProperty('portada');
+        expect(datos).toHaveProperty('url');
+        console.log('Datos reales extraídos:', datos);
+    });
 });

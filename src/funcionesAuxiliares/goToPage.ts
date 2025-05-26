@@ -16,6 +16,8 @@ export async function goToPage({ browser, url }: goToPageProps): Promise<Page | 
     }
 }
 
+
+
 // export async function goToPage( { browser, url }: goToPageProps) {
 //             const isOpen = await openPage(browser, url);
     

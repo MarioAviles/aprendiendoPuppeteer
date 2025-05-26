@@ -1,19 +1,10 @@
 import puppeteer from 'puppeteer';
-
 import {
   DEFAULT_URL,
   DEFAULT_ARTICLE_SELECTOR,
-  DEFAULT_BODY_SELECTOR,
-  DEFAULT_COVER_SELECTOR,
-  DEFAULT_TITLE_SELECTOR,
-  waitForArticles,
-  getArticlesLinks,
-  openArticle,
   extractArticleData
 } from './funciones';
 import { goToPage } from './funcionesAuxiliares/goToPage';
-
-
 
 export async function main() {
     const browser = await puppeteer.launch({
@@ -28,8 +19,7 @@ export async function main() {
         ]
     });
 
-//   [ ] Ir a la página
-
+    // [X] Ir a la página
     const page = await goToPage({
         browser,
         url: DEFAULT_URL
@@ -41,22 +31,28 @@ export async function main() {
         return;
     }
 
-//   [ ] Seleccionar los artículos
+    // [X] Seleccionar los artículos
 
-    // Si existe, continúa normalmente
-    const articleElements = await getArticlesLinks(page, DEFAULT_ARTICLE_SELECTOR);
-    console.log(`Artículos encontrados: ${articleElements.length}`);
+    const articleLinks: string[] = await page.$$eval(
+        DEFAULT_ARTICLE_SELECTOR,
+        links => links.map(link => (link as HTMLAnchorElement).href)
+    );
+    console.log(`Artículos encontrados: ${articleLinks.length}`);
 
-    // for (let i = 0; i < articleElements.length; i++) {
-    //     const el = articleElements[i];
-    //     const titulo = await el.evaluate(a => a.textContent?.trim());
-    //     const href = await el.evaluate(a => (a as HTMLAnchorElement).href);
-    //     console.log(`Artículo ${i + 1}: ${titulo} (${href})`);
-    // }
+    const resultados: any[] = [];
 
-    // await browser.close();
+    // [X] Extraer información de cada artículo
 
-    
+    for (let i = 0; i < articleLinks.length; i++) {
+        console.log(`Procesando artículo ${i + 1} de ${articleLinks.length}`);
+        await page.goto(articleLinks[i], { waitUntil: 'domcontentloaded' });
+        const datos = await extractArticleData(page);
+        resultados.push(datos);
+    }
+
+    console.log('Datos de todos los artículos:', resultados); //meter en json
+
+    await browser.close();
 }
 
 main();

@@ -1,6 +1,6 @@
 import puppeteer, { Browser, Page } from 'puppeteer';
 import { goToPage } from './funcionesAuxiliares/goToPage';
-import { extractArticleData, getArticlesLinks, openArticle, DEFAULT_URL, DEFAULT_ARTICLE_SELECTOR } from './funciones';
+import { extractArticleData, getArticlesLinks, openArticle, DEFAULT_URL, DEFAULT_ARTICLE_SELECTOR } from './funcionesAuxiliares/getArticleData';
 
 describe('extractArticleData en flujo real con página remota', () => {
     let browser: Browser;
@@ -28,7 +28,7 @@ describe('extractArticleData en flujo real con página remota', () => {
         expect(articles.length).toBeGreaterThan(0);
 
         await openArticle(page, articles[0]);
-        const datos = await extractArticleData(page);
+        const datos = await extractArticleData(page, );
 
         expect(datos.titulo).toBeTruthy();
         expect(datos.introduccion).toBeTruthy();

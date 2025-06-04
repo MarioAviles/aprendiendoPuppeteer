@@ -1,10 +1,9 @@
 import puppeteer from 'puppeteer';
 import {
-    DEFAULT_ARTICLE_SELECTOR,
-    extractArticleData,
-    DEFAULT_URL
-} from './funciones';
+    getArticleData
+} from './funcionesAuxiliares/getArticleData';
 import { goToPage } from './funcionesAuxiliares/goToPage';
+import { repositoryDevTo } from './repositories';
 
 export async function main() {
     const browser = await puppeteer.launch({
@@ -20,7 +19,7 @@ export async function main() {
     });
 
     // Abrir la página principal
-    const page = await goToPage({ browser, url: DEFAULT_URL });
+    const page = await goToPage({ browser, url: repositoryDevTo.url });
     if (!page) {
         console.error('No se pudo abrir la página');
         await browser.close();
@@ -28,11 +27,11 @@ export async function main() {
     }
 
     // Esperar a que los artículos estén disponibles
-    await page.waitForSelector(DEFAULT_ARTICLE_SELECTOR);
+    await page.waitForSelector(repositoryDevTo.articleSelector);
 
     // Extraer los href de los artículos
     const articleLinks: string[] = await page.$$eval(
-        DEFAULT_ARTICLE_SELECTOR,
+        repositoryDevTo.articleSelector,
         links => links.map(link => (link as HTMLAnchorElement).href)
     );
     console.log(`Artículos encontrados: ${articleLinks.length}`);
@@ -42,7 +41,7 @@ export async function main() {
     for (let i = 0; i < articleLinks.length; i++) {
         console.log(`Procesando artículo ${i + 1} de ${articleLinks.length}`);
         await page.goto(articleLinks[i], { waitUntil: 'domcontentloaded', timeout: 60000 });
-        const datos = await extractArticleData(page);
+        const datos = await getArticleData(page, repositoryDevTo);
         resultados.push(datos);
     }
 

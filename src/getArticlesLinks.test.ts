@@ -1,5 +1,5 @@
 import puppeteer, { Browser, Page } from 'puppeteer';
-import { getArticlesLinks, DEFAULT_ARTICLE_SELECTOR } from './funciones';
+import { getArticlesLinks, DEFAULT_ARTICLE_SELECTOR } from './funcionesAuxiliares/getArticleData';
 import { goToPage } from './funcionesAuxiliares/goToPage';
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 
